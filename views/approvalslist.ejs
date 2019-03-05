@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Aprovals</title>
+    <title>Aprovalslist</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
     <h1><%= data.username %></h1>
     <h1><%= data.password %></h1>
+<p><%= JSON.stringify(approvals) %></p>
+ <ol>
+<% for(var i = 0; i < approvals.rows.length; i++) {%>
+    <li><%= approvals.rows[i].doc.name %></li>
+<% } %>
+</ol>
+
+
     <a href="/approveRequest">Approve</a>
     <a href="/rejectRequest">Reject</a>
   </body>

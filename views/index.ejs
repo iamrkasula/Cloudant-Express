@@ -7,7 +7,16 @@
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
-    <a href="/approvals">login</a>
+    <a href="/approvalslist">login</a>
+
+
+    <form method="post" action="/submit-data">
+    <input type="text" name="username">
+    <input type="text" name="password">
+    <input type="submit" value="Submit">
+	</form>
+
+
   </body>
 </html>
 

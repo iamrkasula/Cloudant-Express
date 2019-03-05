@@ -5,11 +5,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var Cloudant = require('@cloudant/cloudant');
 
-
+// Demo Database name.
 const DATABASE_NAME = "approvalengine";
 
 
-// Database Setup
+// Database Setup.
 var cloudant = new Cloudant({
   account: '2541cab0-0b28-47fa-8511-34a16d20abc6-bluemix',
   plugins: {
@@ -36,13 +36,19 @@ cloudant.db.list().then((body) => {
 		  } else {
 		    console.log("Database created Successfully")
 
-		    cloudant.use(DATABASE_NAME).insert({ status: false }, 'approval', (err, data) => {
-		      if (err) {
-		        console.log(err);
-		      } else {
-		        console.log(data); 
-		      }
-		    })
+		    var approvals = [
+  				{ name:"Charles Dickens", title:"David Copperfield", status: false },
+  				{ name:"David Copperfield", title:"Tales of the Impossible", status: false },
+  				{ name:"Charles Dickens", title:"Great Expectation", status: false }
+			]
+
+		    cloudant.use(DATABASE_NAME).bulk({ docs:approvals }, function(err, data) {
+  				if (err) {
+    				console.log(err);
+  				}
+
+  				console.log(data);
+			});
 
 		  }
 		});
@@ -51,7 +57,7 @@ cloudant.db.list().then((body) => {
 
   }).catch((err) => { 
   	console.log(err); 
-  });
+ });
 
 
 
@@ -60,6 +66,7 @@ cloudant.db.list().then((body) => {
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var approvalsRouter = require('./routes/approvals');
+var approvalsListRouter = require('./routes/approvalslist');
 
 
 var app = express();
@@ -75,55 +82,19 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// Navigation
-app.get('/', indexRouter);
-app.get('/approvals', approvalsRouter);
+app.use('/', indexRouter);
+app.use('/approvals', approvalsRouter);
+app.use('/approvalslist', approvalsListRouter);
 
 
-// Button Events
-app.get("/approveRequest", function(req, res) {
 
+const bodyParser = require("body-parser");
 
-	// Get existing single Approval for demo
-	cloudant.use(DATABASE_NAME).get('approval', function(err, data) {
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
-    	data.status = true // change approval status to true
-
-    	cloudant.use(DATABASE_NAME).insert(data, function(err, body) {
-    		if (err) {
-				console.log(err);
-			} else {
-				console.log(data); 
-			}
-		  	res.render('approvals', { title: 'Approvals' });
-    	}); 
-
-	});
-	
-
-});
-
-app.get("/rejectRequest", function(req, res) {
-  
-
-// Get existing single Approval for demo
-	cloudant.use(DATABASE_NAME).get('approval', function(err, data) {
-
-    	data.status = false // change approval status to true
-
-    	cloudant.use(DATABASE_NAME).insert(data, function(err, body) {
-    		if (err) {
-				console.log(err);
-			} else {
-				console.log(data); 
-			}
-		  	res.render('approvals', { title: 'Approvals' });
-    	}); 
-
-	});
-
-});
-
+app.use(bodyParser.json());
 
 
 // catch 404 and forward to error handler
@@ -141,8 +112,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-
 
 
 module.exports = app;
