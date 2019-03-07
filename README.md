@@ -1,2 +1,2 @@
 # Cloudant-Express
-Nodejs sample app with cloudant Integration --
+Nodejs sample app with cloudant Integration
